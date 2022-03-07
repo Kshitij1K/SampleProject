@@ -1,8 +1,13 @@
 cmake_minimum_required(VERSION 3.21)
 project(yourlibrary CXX)
 
+set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_PREFIX_PATH $ENV{QTDIR})
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+
 # First, create your library. List all the files one by one. Don't use globs
-add_library(yourlibrary src/mainwindows.cpp)
+add_library(yourlibrary src/mainwindow.cpp)
 
 # Then add an alias of your library to enable target syntax
 add_library(yourlibrary::yourlibrary ALIAS yourlibrary)
@@ -17,10 +22,8 @@ target_include_directories(yourlibrary PUBLIC
 )
 
 # Then, include Qt and link qt
-find_package(Qt6 COMPONENTS Widgets REQUIRED)
-find_package(Qt6 COMPONENTS Core REQUIRED)
-target_link_libraries(yourlibrary PUBLIC Qt6::Widgets)
-target_link_libraries(yourlibrary PUBLIC Qt6::Core)
+find_package(Qt6 COMPONENTS Core Widgets REQUIRED)
+target_link_libraries(yourlibrary PUBLIC Qt6::Core Qt6::Widgets)
 
 # Now, create the install script. We install all header files under `include/yourlibrary` to install them in `<prefix>/include/yourlibrary`:
 install(
@@ -44,8 +47,9 @@ install(EXPORT yourlibrary-targets
 )
 
 # Now, we also export the current buildtree. Other project will be able to import the project directly from a build dir:
+configure_file(cmake/yourlibrary-config.cmake yourlibrary-config.cmake COPYONLY) 
 export(
-  TARGETS yourlibrary-targets
+  EXPORT yourlibrary-targets
   NAMESPACE yourlibrary::
   FILE "${PROJECT_BINARY_DIR}/yourlibrary-targets.cmake"
 )

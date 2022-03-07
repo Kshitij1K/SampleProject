@@ -22,10 +22,11 @@ private:
 
 class run_stuff {
     public:
-    run_stuff();
+    run_stuff(int argc, char** argv);
     int run_func();
 
     private:
+    QApplication app;
     MainWindow* window;
 };
 

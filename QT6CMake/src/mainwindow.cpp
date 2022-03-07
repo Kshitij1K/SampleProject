@@ -13,7 +13,8 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-run_stuff::run_stuff() {
+run_stuff::run_stuff(int argc, char** argv):
+app(argc, argv) {
     window = new MainWindow;
 }
 
