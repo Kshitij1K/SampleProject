@@ -1,4 +1,4 @@
-#include <mainwindow.h>
+#include <yourlibrary/mainwindow.h>
 
 int main(int argc, char* argv[]) {
 	QApplication app(argc, argv);

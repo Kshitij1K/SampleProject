@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.21)
 project(yourlibrary CXX)
 
 # First, create your library. List all the files one by one. Don't use globs
-add_library(yourlibrary src/mainwindow.cpp)
+add_library(yourlibrary src/yourlibrary/mainwindow.cpp)
 
 # Then add an alias of your library to enable target syntax
 add_library(yourlibrary::yourlibrary ALIAS yourlibrary)
