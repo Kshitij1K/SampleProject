@@ -1,12 +1,7 @@
 cmake_minimum_required(VERSION 3.21)
-project(myexec CXX)
+project(myexec LANGUAGES CXX)
 
-list(APPEND CMAKE_PREFIX_PATH "../QT6CMake/build" $ENV{QTDIR})
-
-set(CMAKE_AUTOUIC ON)
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
-# Also finds Qt
+list(APPEND CMAKE_PREFIX_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../QT6CMake/build")
 find_package(yourlibrary REQUIRED)
 
 add_executable(myexec main.cpp)

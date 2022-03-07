@@ -1,16 +1,18 @@
 cmake_minimum_required(VERSION 3.21)
 project(yourlibrary CXX)
 
-set(CMAKE_AUTOUIC ON)
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_PREFIX_PATH $ENV{QTDIR})
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
-
 # First, create your library. List all the files one by one. Don't use globs
 add_library(yourlibrary src/mainwindow.cpp)
 
 # Then add an alias of your library to enable target syntax
 add_library(yourlibrary::yourlibrary ALIAS yourlibrary)
+
+# Automatically generate Qt ui and moc
+set_target_properties(yourlibrary PROPERTIES
+    AUTOUIC ON
+    AUTOMOC ON
+    AUTOUIC_SEARCH_PATHS forms
+)
 
 # Then, include gnuinstalldir to get the platform's standard directories:
 include(GNUInstallDirs)
@@ -28,7 +30,7 @@ target_link_libraries(yourlibrary PUBLIC Qt6::Core Qt6::Widgets)
 # Now, create the install script. We install all header files under `include/yourlibrary` to install them in `<prefix>/include/yourlibrary`:
 install(
   DIRECTORY include/yourlibrary
-  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR} FILES_MATCHING PATTERN "*.hpp"
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR} FILES_MATCHING PATTERN "*.hpp" PATTERN "*.h"
 )
 
 # We add `yourlibrary` target into the export set.
@@ -47,7 +49,7 @@ install(EXPORT yourlibrary-targets
 )
 
 # Now, we also export the current buildtree. Other project will be able to import the project directly from a build dir:
-configure_file(cmake/yourlibrary-config.cmake yourlibrary-config.cmake COPYONLY) 
+configure_file(cmake/yourlibrary-config.cmake yourlibrary-config.cmake COPYONLY)
 export(
   EXPORT yourlibrary-targets
   NAMESPACE yourlibrary::
@@ -56,6 +58,6 @@ export(
 
 # The file we created earlier:
 install(
-    FILES yourlibrary-config.cmake
+    FILES cmake/yourlibrary-config.cmake
     DESTINATION "${CMAKE_INSTALL_DATADIR}/cmake/yourlibrary"
 )
