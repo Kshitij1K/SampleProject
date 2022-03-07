@@ -1,12 +1,6 @@
-cmake_minimum_required(VERSION 3.14)
-
-# if (WIN32)
-#   set(CMAKE_SHARED_LIBRARY_PREFIX "")
-
-# endif ()
+cmake_minimum_required(VERSION 3.21)
 
 set(CMAKE_MAKE_PROGRAM $ENV{MAKE})
-set(CMAKE_CONFIGURATION_TYPES "Release;RelWithDebInfo" CACHE STRING "" FORCE)
 set(CMAKE_SUPPORT_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 set(WINDOWS_EXPORT_ALL_SYMBOLS ON)
 

@@ -1,63 +1,57 @@
-cmake_minimum_required(VERSION 3.14)
-project(MY_PROJECT)
+cmake_minimum_required(VERSION 3.21)
+project(yourlibrary CXX)
 
-if (WIN32)
-    project(${PROJECT_NAME} LANGUAGES CXX)
-elseif(UNIX)
-    project(${PROJECT_NAME})
-endif()
+# First, create your library. List all the files one by one. Don't use globs
+add_library(yourlibrary src/mainwindows.cpp)
 
+# Then add an alias of your library to enable target syntax
+add_library(yourlibrary::yourlibrary ALIAS yourlibrary)
 
-#======================= INCLUSION OF Qt =======================#
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTOUIC ON)
-set(CMAKE_PREFIX_PATH $ENV{QTDIR})
-find_package(Qt6Core REQUIRED)
-find_package(Qt6Widgets REQUIRED)
+# Then, include gnuinstalldir to get the platform's standard directories:
+include(GNUInstallDirs)
 
-#=================== INCLUSION OF Project Files ====================#
-set(FORMS_DIR "${CMAKE_SOURCE_DIR}/forms")
-set(INCLUDE_DIR "${CMAKE_SOURCE_DIR}/include")
-set(SOURCE_DIR "${CMAKE_SOURCE_DIR}/src")
-
-include_directories(${FORMS_DIR})
-include_directories(${INCLUDE_DIR})
-include_directories(${SOURCE_DIR})
-
-file(GLOB_RECURSE SOURCES
-    "${FORMS_DIR}/*.ui"
-    "${FORMS_DIR}/*.qrc"
-    "${INCLUDE_DIR}/*.h"
-    "${SOURCE_DIR}/*.cpp"
+# Then, carefully add your include directories. All of your `target_include_directories` must look like this
+target_include_directories(yourlibrary PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> # include directory in your build tree
+  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>       # include directory when installed
 )
 
-#=================== SETUP EXECTUABLE ====================#
-# Enable debug logging on RELWITHDEBINFO configuration
-# Add the forms directory to the AUTOUIC search paths
-set(CMAKE_AUTOUIC_SEARCH_PATHS ${CMAKE_AUTOUIC_SEARCH_PATHS} ${FORMS_DIR})
+# Then, include Qt and link qt
+find_package(Qt6 COMPONENTS Widgets REQUIRED)
+find_package(Qt6 COMPONENTS Core REQUIRED)
+target_link_libraries(yourlibrary PUBLIC Qt6::Widgets)
+target_link_libraries(yourlibrary PUBLIC Qt6::Core)
 
-# Add the executable
-add_library(${PROJECT_NAME} SHARED ${SOURCES})
+# Now, create the install script. We install all header files under `include/yourlibrary` to install them in `<prefix>/include/yourlibrary`:
+install(
+  DIRECTORY include/yourlibrary
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR} FILES_MATCHING PATTERN "*.hpp"
+)
 
-# if (WIN32) 
-#     set_property(TARGET ${PROJECT_NAME} PROPERTY WIN32_EXECUTABLE TRUE)
-# endif()
+# We add `yourlibrary` target into the export set.
+# The export set will contain all targets to be imported by the other project.
+# It also installs the library to the install script so they are installed:
+install(TARGETS yourlibrary EXPORT yourlibrary-targets
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
 
-# Add the target includes for ${PROJECT_NAME} 
-# target_include_directories(${PROJECT_NAME} PUBLIC ${FORMS_DIR})
-# target_include_directories(${PROJECT_NAME} PUBLIC ${INCLUDE_DIR})
-# target_include_directories(${PROJECT_NAME} PUBLIC ${SOURCE_DIR})
+# Now, we install the export set. This will generate a CMake file exporting all the target for other projects to use:
+install(EXPORT yourlibrary-targets
+  DESTINATION "${CMAKE_INSTALL_DATADIR}/cmake/yourlibrary"
+  NAMESPACE yourlibrary::
+)
 
-#===================== LINKING LIBRARIES =======================#
-target_link_libraries(${PROJECT_NAME} Qt6::Widgets Qt6::Core)
+# Now, we also export the current buildtree. Other project will be able to import the project directly from a build dir:
+export(
+  TARGETS yourlibrary-targets
+  NAMESPACE yourlibrary::
+  FILE "${PROJECT_BINARY_DIR}/yourlibrary-targets.cmake"
+)
 
-# Expose C's definitions (in this case only the ones of XXX transitively)
-# to other subprojects through cache variable.
-set(${PROJECT_NAME}_DEFINITIONS ${Qt6Core_DEFINITIONS} ${Qt6Widgets_DEFINITIONS}
-    CACHE INTERNAL "${PROJECT_NAME}: Definitions" FORCE)
-
-# Expose C's public includes (including the ones of C's dependencies transitively)
-# to other subprojects through cache variable.
-set(${PROJECT_NAME}_INCLUDE_DIRS ${Qt6Core_INCLUDE_DIRS} ${Qt6Widgets_INCLUDE_DIRS} ${PROJECT_SOURCE_DIR}/include
-    CACHE INTERNAL "${PROJECT_NAME}: Include Directories" FORCE)
+# The file we created earlier:
+install(
+    FILES yourlibrary-config.cmake
+    DESTINATION "${CMAKE_INSTALL_DATADIR}/cmake/yourlibrary"
+)

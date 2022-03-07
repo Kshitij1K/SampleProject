@@ -1,13 +1,10 @@
-cmake_minimum_required(VERSION 3.14)
-project(somexec)
+cmake_minimum_required(VERSION 3.21)
+project(myexec CXX)
 
-add_definitions(${MY_PROJECT_DEFINITIONS})
-include_directories(${MY_PROJECT_INCLUDE_DIRS})
+list(APPEND CMAKE_PREFIX_PATH "../QT6CMake")
 
-if (WIN32) 
-    add_executable(${PROJECT_NAME} WIN32 main.cpp)
-elseif(UNIX)
-    add_executable(${PROJECT_NAME} main.cpp)
-endif()
+# Also finds Qt
+find_package(yourlibrary REQUIRED)
 
-target_link_libraries(${PROJECT_NAME} MY_PROJECT)
+add_executable(myexec main.cpp)
+target_link_libraries(myexec PUBLIC yourlibrary::yourlibrary)
